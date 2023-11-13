@@ -10,6 +10,13 @@ extern const double Chi;
 
 // Particle methods
 
+void Particle::ApplyPeriodicBoundaryConditions(double Lx, double Ly) {
+    if (x < 0) x += Lx;
+    else if (x > Lx) x -= Lx;
+
+    if (y < 0) y += Ly;
+    else if (y > Ly) y -= Ly;
+}
 
 void Particle::Init(double x0, double y0, double velocityX0, double velocityY0, double mass0, double radius0) {
     x = x0; y = y0; velocityX = velocityX0; velocityY = velocityY0; mass = mass0; radius = radius0;
@@ -17,6 +24,7 @@ void Particle::Init(double x0, double y0, double velocityX0, double velocityY0, 
 
 void Particle::Move_r1(double dt) {
     x += velocityX * Chi * dt;  y += velocityY * Chi * dt;
+    ApplyPeriodicBoundaryConditions(Lx, Ly);
 }
 
 void Particle::Move_V(double dt) {
@@ -25,6 +33,7 @@ void Particle::Move_V(double dt) {
 
 void Particle::Move_r2(double dt) {
     x += velocityX * ((1 - 2 * Chi) * dt);  y += velocityY * ((1 - 2 * Chi) * dt);
+    ApplyPeriodicBoundaryConditions(Lx, Ly);
 }
 
 void Particle::Draw(void) {

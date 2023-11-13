@@ -19,6 +19,8 @@ public:
     double GetVelocity(void);
     double GetVelocityX(void);
 
+    void ApplyPeriodicBoundaryConditions(double Lx, double Ly);
+
     friend class Collider;
 };
 

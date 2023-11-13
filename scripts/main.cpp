@@ -1,6 +1,7 @@
 // main.cpp
 #include <iostream>
 #include <cmath>
+#include <omp.h>
 #include "Random64.h"
 #include "Particle.h"
 #include "Collider.h"
@@ -12,8 +13,8 @@ void StartAnimation(void) {
     cout << "set terminal gif animate delay 10" << endl; // Set terminal to gif, animate, with a delay
     cout << "set output 'simulation.gif'" << endl; // Output file name
     cout << "unset key" << endl;
-    cout << "set xrange [-50:150]" << endl;
-    cout << "set yrange [-50:150]" << endl;
+    cout << "set xrange [-10:150]" << endl;
+    cout << "set yrange [-10:150]" << endl;
     cout << "set size ratio -1" << endl;
     cout << "set parametric" << endl;
     cout << "set trange [0:7]" << endl;
@@ -43,20 +44,9 @@ int main() {
 
     collider.Init();
 
-    //PAREDES
-    //Pared izquierda
-    //particles[N].Init(-10000,Ly/2,0,0,0.01,10000); 
-    //Pared derecha
-    //particles[N+1].Init(Lx+10000,Ly/2,0,0,0.01,10000); 
-    //Pared abajo
-    //particles[N+2].Init(Lx/2,-10000,0,0,0.01,10000); 
-    //Pared arriba
-    //particles[N+3].Init(Lx/2,Ly+10000,0,0,0.01,10000); 
-
-
     // Initialize particles
     dx = Lx / (Nx + 1); dy = Ly / (Ny + 1);
-    radius = dx / 4;
+    radius = dx / 8;
     //if (dx / 3 > dy / 3) radius = dy / 3;
 
     for (i = 0; i < N; i++) {
@@ -87,13 +77,20 @@ int main() {
         //     for (i = 0; i < N; i++) cout << particles[i].GetVelocityX() << endl;
 
         // Optimized Verlet Velocity
+        #pragma omp parallel for
         for (i = 0; i < N; i++) particles[i].Move_r1(DeltaT);
+
         collider.CalculateForces(particles);
+
+        #pragma omp parallel for
         for (i = 0; i < N; i++) {
             particles[i].Move_V(DeltaT);
             particles[i].Move_r2(DeltaT);
         }
+        
         collider.CalculateForces(particles);
+
+        #pragma omp parallel for
         for (i = 0; i < N; i++) {
             particles[i].Move_V(DeltaT);
             particles[i].Move_r1(DeltaT);
