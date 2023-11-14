@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cmath>
 #include <omp.h>
+#include <fstream>
 #include "Random64.h"
 #include "Particle.h"
 #include "Collider.h"
@@ -11,10 +12,10 @@ using namespace std;
 
 void StartAnimation(void) {
     cout << "set terminal gif animate delay 10" << endl; // Set terminal to gif, animate, with a delay
-    cout << "set output 'simulation.gif'" << endl; // Output file name
+    cout << "set output '../output_files/simulation.gif'" << endl; // Output file name
     cout << "unset key" << endl;
-    cout << "set xrange [-10:150]" << endl;
-    cout << "set yrange [-10:150]" << endl;
+    cout << "set xrange [-100:150]" << endl;
+    cout << "set yrange [-100:150]" << endl;
     cout << "set size ratio -1" << endl;
     cout << "set parametric" << endl;
     cout << "set trange [0:7]" << endl;
@@ -40,6 +41,15 @@ int main() {
     double time, drawTime, dx, dy, radius, alpha, kineticEnergy, potentialEnergy;  
     int i;
 
+    // To save energies
+    std::ofstream outFile("../output_files/energy_data.txt");
+    if (!outFile) {
+        cerr << "Error opening file for writing" << endl;
+        return 1; // or handle the error as you see fit
+    }
+
+    double totalTime = 1000;
+
     StartAnimation();
 
     collider.Init();
@@ -55,46 +65,56 @@ int main() {
     }
 
     // Main loop
-    for (time = drawTime = 0; time < 5000; time += DeltaT, drawTime += DeltaT) {
+    for (time = drawTime = 0; time < totalTime; time += dt, drawTime += dt) {
         // Drawing (optional)
 
         //if (drawTime > 20 / 120.0) {
-        if (int(drawTime) % 10 == 0 && drawTime - int(drawTime) < DeltaT)  {
+        if (int(drawTime) % 10 == 0 && drawTime - int(drawTime) < dt)  {
             StartFrame();
             for (i = 0; i < N; i++) particles[i].Draw();
             EndFrame();
             drawTime = 0;
         }
 
-
         // Calculate energies
         kineticEnergy = 0;
         for (i = 0; i < N; i++) kineticEnergy += particles[i].GetKineticEnergy();
         potentialEnergy = collider.GetPotentialEnergy();
+        outFile << time << " " << kineticEnergy + potentialEnergy << endl;
 
         // Uncomment for histogram data
         // if (time > 2)
         //     for (i = 0; i < N; i++) cout << particles[i].GetVelocityX() << endl;
 
-        // Optimized Verlet Velocity
-        #pragma omp parallel for
-        for (i = 0; i < N; i++) particles[i].Move_r1(DeltaT);
+        /*
+        // Optimized Verlet Velocity - Old algorithm
+        for (i = 0; i < N; i++) particles[i].Move_r1(dt);
 
         collider.CalculateForces(particles);
 
-        #pragma omp parallel for
         for (i = 0; i < N; i++) {
-            particles[i].Move_V(DeltaT);
-            particles[i].Move_r2(DeltaT);
+            particles[i].Move_V(dt);
+            particles[i].Move_r2(dt);
         }
         
         collider.CalculateForces(particles);
 
-        #pragma omp parallel for
         for (i = 0; i < N; i++) {
-            particles[i].Move_V(DeltaT);
-            particles[i].Move_r1(DeltaT);
+            particles[i].Move_V(dt);
+            particles[i].Move_r1(dt);
         }
+        */
+
+        //Omelyan PEFRL
+        for(i = 0; i < N; i++) particles[i].Move_r1(dt, Zeta);
+        collider.CalculateForces(particles);; for(i = 0; i < N; i++) particles[i].Move_V(dt, (1-2*Lambda)/2);
+        for(i = 0; i < N; i++) particles[i].Move_r1(dt, Xi);
+        collider.CalculateForces(particles);; for(i = 0; i < N; i++) particles[i].Move_V(dt, Lambda);
+        for(i = 0; i < N; i++) particles[i].Move_r1(dt,1-2*(Xi+Zeta));
+        collider.CalculateForces(particles);; for(i = 0; i < N; i++) particles[i].Move_V(dt, Lambda);
+        for(i = 0; i < N; i++) particles[i].Move_r1(dt, Xi);
+        collider.CalculateForces(particles);; for(i = 0; i < N; i++) particles[i].Move_V(dt,( 1-2*Lambda)/2);
+        for(i = 0; i < N; i++) particles[i].Move_r1(dt, Zeta);
     }
 
     cout << "set output" << endl; // Close the output file

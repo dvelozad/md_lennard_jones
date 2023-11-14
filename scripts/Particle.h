@@ -8,9 +8,9 @@ private:
 
 public:
     void Init(double x0, double y0, double velocityX0, double velocityY0, double mass0, double radius0);
-    void Move_r1(double dt);
-    void Move_V(double dt);
-    void Move_r2(double dt);
+    void Move_r1(double dt, double constant);
+    void Move_V(double dt, double constant);
+    //void Move_r2(double dt);
     void Draw(void);
 
     double GetX(void);
