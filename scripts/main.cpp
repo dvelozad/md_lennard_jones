@@ -14,8 +14,8 @@ void StartAnimation(void) {
     cout << "set terminal gif animate delay 10" << endl; // Set terminal to gif, animate, with a delay
     cout << "set output '../output_files/simulation.gif'" << endl; // Output file name
     cout << "unset key" << endl;
-    cout << "set xrange [-100:150]" << endl;
-    cout << "set yrange [-100:150]" << endl;
+    cout << "set xrange [-5:55]" << endl;
+    cout << "set yrange [-5:55]" << endl;
     cout << "set size ratio -1" << endl;
     cout << "set parametric" << endl;
     cout << "set trange [0:7]" << endl;
@@ -48,7 +48,14 @@ int main() {
         return 1; // or handle the error as you see fit
     }
 
-    double totalTime = 1000;
+    // To save energies
+    std::ofstream outFile_positions("../output_files/positions_data.txt");
+    if (!outFile_positions) {
+        cerr << "Error opening file for writing" << endl;
+        return 1; // or handle the error as you see fit
+    }
+
+    double totalTime = 100000;
 
     StartAnimation();
 
@@ -69,18 +76,25 @@ int main() {
         // Drawing (optional)
 
         //if (drawTime > 20 / 120.0) {
-        if (int(drawTime) % 10 == 0 && drawTime - int(drawTime) < dt)  {
-            StartFrame();
+        if (int(drawTime) % 70 == 0 && drawTime - int(drawTime) < dt)  {
+
+            for (i = 0; i < N; i++){
+                outFile_positions << i << " " << time << " " << particles[i].GetX() << " " << particles[i].GetY() << endl;
+            }
+            /*            StartFrame();
             for (i = 0; i < N; i++) particles[i].Draw();
             EndFrame();
-            drawTime = 0;
+            drawTime = 0;*/
         }
 
         // Calculate energies
-        kineticEnergy = 0;
-        for (i = 0; i < N; i++) kineticEnergy += particles[i].GetKineticEnergy();
-        potentialEnergy = collider.GetPotentialEnergy();
-        outFile << time << " " << kineticEnergy + potentialEnergy << endl;
+
+        if (int(drawTime) % 70 == 0 && drawTime - int(drawTime) < dt)  {
+            kineticEnergy = 0;
+            for (i = 0; i < N; i++) kineticEnergy += particles[i].GetKineticEnergy();
+            potentialEnergy = collider.GetPotentialEnergy();
+            outFile << time << " " << kineticEnergy + potentialEnergy << endl;
+        }
 
         // Uncomment for histogram data
         // if (time > 2)

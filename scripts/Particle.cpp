@@ -11,17 +11,17 @@ extern const double Chi;
 // Particle methods
 
 void Particle::ApplyPeriodicBoundaryConditions(double Lx, double Ly) {
-    /*    if (x < 0) x += Lx;
+    if (x < 0) x += Lx;
     else if (x > Lx) x -= Lx;
 
     if (y < 0) y += Ly;
-    else if (y > Ly) y -= Ly;*/
+    else if (y > Ly) y -= Ly;
 
-    if (x < 0) velocityX = -1*velocityX;
+    /*    if (x < 0) velocityX = -1*velocityX;
     else if (x > Lx) velocityX = -1*velocityX;
 
     if (y < 0) velocityY = -1*velocityY;
-    else if (y > Ly) velocityY = -1*velocityY;
+    else if (y > Ly) velocityY = -1*velocityY;*/
 
 }
 

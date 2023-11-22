@@ -29,6 +29,10 @@ void Collider::CalculateForces(Particle *particles) {
 void Collider::Collide(Particle &particle1, Particle &particle2) {
     double dx = particle1.x - particle2.x;
     double dy = particle1.y - particle2.y;
+
+    dx -= Lx * round(dx / Lx);
+    dy -= Ly * round(dy / Ly);
+
     double distance = sqrt(dx * dx + dy * dy);
     
     /*
