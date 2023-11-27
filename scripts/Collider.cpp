@@ -3,6 +3,7 @@
 #include "Constants.h"
 #include <cmath>
 #include <omp.h>
+#include <iostream>
 
 extern const double SpringConstant;
 extern const int N;
@@ -14,6 +15,8 @@ void Collider::Init(void) {
 
 void Collider::CalculateForces(Particle *particles) {
     potentialEnergy = 0;
+
+    #pragma omp parallel for
     for (int i = 0; i < N; i++) { //N + 4
         particles[i].forceX = 0; particles[i].forceY = 0;
     }
@@ -34,7 +37,7 @@ void Collider::Collide(Particle &particle1, Particle &particle2) {
     dy -= Ly * round(dy / Ly);
 
     double distance = sqrt(dx * dx + dy * dy);
-    
+   
     /*
     double overlap = particle1.radius + particle2.radius - distance;
     if (overlap > 0) {
@@ -51,6 +54,7 @@ void Collider::Collide(Particle &particle1, Particle &particle2) {
     }
     */
    if (distance < cutoff) { 
+        // Force at cutoff
         double forceNormal = -24*epsilon*((pow(sigma, 6) / pow(distance, 7)) - 2*(pow(sigma, 12) / pow(distance, 13))); 
         double forceX = forceNormal * dx / distance;
         double forceY = forceNormal * dy / distance;
@@ -59,7 +63,10 @@ void Collider::Collide(Particle &particle1, Particle &particle2) {
         particle1.forceY += forceY;
         particle2.forceX -= forceX;
         particle2.forceY -= forceY;
-        potentialEnergy += 4*epsilon*(pow((sigma/distance), 12) - pow((sigma/distance), 6));
+
+
+        double potentialEnergyAtCuttoff = 4*epsilon*(pow((sigma/cutoff), 12) - pow((sigma/cutoff), 6));
+        potentialEnergy += 4*epsilon*(pow((sigma/distance), 12) - pow((sigma/distance), 6)) - potentialEnergyAtCuttoff;
     }
 }
 

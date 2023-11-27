@@ -10,27 +10,17 @@
 
 using namespace std;
 
-void StartAnimation(void) {
-    cout << "set terminal gif animate delay 10" << endl; // Set terminal to gif, animate, with a delay
-    cout << "set output '../output_files/simulation.gif'" << endl; // Output file name
-    cout << "unset key" << endl;
-    cout << "set xrange [-5:55]" << endl;
-    cout << "set yrange [-5:55]" << endl;
-    cout << "set size ratio -1" << endl;
-    cout << "set parametric" << endl;
-    cout << "set trange [0:7]" << endl;
-    cout << "set isosamples 12" << endl;
-}
 
+double CalculateCurrentTemperature(Particle *particles, int numParticles) {
+    double totalKineticEnergy = 0.0;
 
-// Animation functions continued
-void StartFrame(void) {
-    cout << "plot 0,0 ";
-    // Add more plot commands as needed
-}
+    for (int i = 0; i < numParticles; ++i) {
+        double velocitySquared = particles[i].GetVelocity() * particles[i].GetVelocity();
+        totalKineticEnergy += 0.5 * particles[i].GetMass() * velocitySquared;
+    }
 
-void EndFrame(void) {
-    cout << endl;
+    double temperature = (2.0 / (3.0 * numParticles * kB)) * totalKineticEnergy;
+    return temperature;
 }
 
 // Main function
@@ -55,9 +45,11 @@ int main() {
         return 1; // or handle the error as you see fit
     }
 
-    double totalTime = 100000;
+    double defaultMass = 1;
+    double totalTime = 10000;
+    int timeFrame = 5;
 
-    StartAnimation();
+    //StartAnimation();
 
     collider.Init();
 
@@ -68,56 +60,65 @@ int main() {
 
     for (i = 0; i < N; i++) {
         alpha = 2 * M_PI * randomGenerator.r();
-        particles[i].Init(((i % Nx) + 1) * dx, ((i / Ny) + 1) * dy, InitialVelocity * cos(alpha), InitialVelocity * sin(alpha), 10, radius);
+        double randomInitialVelocity =  InitialVelocity * randomGenerator.r();
+        particles[i].Init(((i % Nx) + 1) * dx, ((i / Ny) + 1) * dy, randomInitialVelocity * cos(alpha), randomInitialVelocity * sin(alpha), defaultMass, radius);
+        //particles[i].Init(((i % Nx) + 1 + 3*randomGenerator.r()) * dx, ((i / Ny) + 1 + randomGenerator.r()) * dy , randomInitialVelocity * cos(alpha), randomInitialVelocity * sin(alpha), defaultMass, radius);
     }
 
-    // Main loop
+    // Steepest Descent Energy Minimization
+    double minimizationStepSize = 0.0001;  
+    int minimizationSteps = 100000;        
+
+    for (int step = 0; step < minimizationSteps; step++) {
+        collider.CalculateForces(particles); 
+
+        for (i = 0; i < N; i++) {
+            particles[i].MinimizeEnergy(minimizationStepSize);
+        }
+    }
+
+    cout << "Minimization step done" << endl;
+
     for (time = drawTime = 0; time < totalTime; time += dt, drawTime += dt) {
         // Drawing (optional)
 
         //if (drawTime > 20 / 120.0) {
-        if (int(drawTime) % 70 == 0 && drawTime - int(drawTime) < dt)  {
+        if (int(drawTime) % timeFrame == 0 && drawTime - int(drawTime) < dt)  {
 
             for (i = 0; i < N; i++){
                 outFile_positions << i << " " << time << " " << particles[i].GetX() << " " << particles[i].GetY() << endl;
             }
-            /*            StartFrame();
-            for (i = 0; i < N; i++) particles[i].Draw();
-            EndFrame();
-            drawTime = 0;*/
-        }
-
-        // Calculate energies
-
-        if (int(drawTime) % 70 == 0 && drawTime - int(drawTime) < dt)  {
-            kineticEnergy = 0;
-            for (i = 0; i < N; i++) kineticEnergy += particles[i].GetKineticEnergy();
-            potentialEnergy = collider.GetPotentialEnergy();
-            outFile << time << " " << kineticEnergy + potentialEnergy << endl;
         }
 
         // Uncomment for histogram data
         // if (time > 2)
         //     for (i = 0; i < N; i++) cout << particles[i].GetVelocityX() << endl;
 
-        /*
-        // Optimized Verlet Velocity - Old algorithm
-        for (i = 0; i < N; i++) particles[i].Move_r1(dt);
+        /*        // Optimized Verlet Velocity - Old algorithm
+        for (i = 0; i < N; i++) particles[i].Move_r1_(dt);
 
         collider.CalculateForces(particles);
 
         for (i = 0; i < N; i++) {
-            particles[i].Move_V(dt);
-            particles[i].Move_r2(dt);
+            particles[i].Move_V_(dt);
+            particles[i].Move_r2_(dt);
         }
         
         collider.CalculateForces(particles);
 
         for (i = 0; i < N; i++) {
-            particles[i].Move_V(dt);
-            particles[i].Move_r1(dt);
+            particles[i].Move_V_(dt);
+            particles[i].Move_r1_(dt);
+        }*/
+
+
+        // Calculate energies
+        if (int(drawTime) % timeFrame == 0 && drawTime - int(drawTime) < dt)  {
+            kineticEnergy = 0;
+            for (i = 0; i < N; i++) kineticEnergy += particles[i].GetKineticEnergy();
+            potentialEnergy = collider.GetPotentialEnergy();
+            outFile << time << " " << kineticEnergy + potentialEnergy << endl;
         }
-        */
 
         //Omelyan PEFRL
         for(i = 0; i < N; i++) particles[i].Move_r1(dt, Zeta);
@@ -129,10 +130,21 @@ int main() {
         for(i = 0; i < N; i++) particles[i].Move_r1(dt, Xi);
         collider.CalculateForces(particles);; for(i = 0; i < N; i++) particles[i].Move_V(dt,( 1-2*Lambda)/2);
         for(i = 0; i < N; i++) particles[i].Move_r1(dt, Zeta);
+
+
+        // After calculating the current temperature of the system
+        double T_current = CalculateCurrentTemperature(particles, N);
+        double lambda = sqrt(T_desired / T_current);
+
+        if(T_current == 0){
+            cout << "Current temperature is zero!!" << endl;
+        }
+
+        // Rescale velocities
+        for (int i = 0; i < N; i++) {
+            particles[i].RescaleVelocity(lambda);
+        }
     }
-
-    cout << "set output" << endl; // Close the output file
-
 
     return 0;
 }

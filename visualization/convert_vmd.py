@@ -5,7 +5,9 @@ data = pd.read_csv('../output_files/positions_data.txt', sep=' ', names=['partic
 # Add a Z-coordinate
 data['z'] = 0.0
 
-data['time'] = (data['time']/70).astype(int)
+
+min_time_step = data['time'].unique()[1] - data['time'].unique()[0]
+data['time'] = (data['time']/min_time_step).astype(int)
 
 # Define the atom type (assuming all particles are of the same type)
 atom_type = "C"  # You can change this to the appropriate atom type
