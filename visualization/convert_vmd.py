@@ -1,9 +1,9 @@
 import pandas as pd
 
 # Replace 'your_data_file.csv' with the path to your data file
-data = pd.read_csv('../output_files/positions_data.txt', sep=' ', names=['particle', 'time', 'x', 'y'])
+data = pd.read_csv('../output_files/positions_data.txt', sep=' ', names=['particle', 'time', 'x', 'y', 'z'])
 # Add a Z-coordinate
-data['z'] = 0.0
+#data['z'] = 0.0
 
 
 min_time_step = data['time'].unique()[1] - data['time'].unique()[0]
