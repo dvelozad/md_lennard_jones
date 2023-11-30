@@ -231,7 +231,7 @@ int main() {
     }
 
     // Write RDF
-    ComputeAndWriteRDF(particles, maxDistance, numBins, outFile_RDF);
+    //ComputeAndWriteRDF(particles, maxDistance, numBins, outFile_RDF);
 
     return 0;
 }

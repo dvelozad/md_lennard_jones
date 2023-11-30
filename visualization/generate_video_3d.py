@@ -22,7 +22,7 @@ color_dict = {particle: np.random.choice(['red', 'green', 'blue', 'purple']) for
 
 # Map these properties back to the DataFrame
 #data['radius'] = data['particle'].map(radius_dict)
-data['radius'] = 0.5
+data['radius'] = 0.1
 data['color'] = data['particle'].map(color_dict)
 
 # Function to draw a sphere
