@@ -7,11 +7,13 @@ import matplotlib.animation as animation
 from matplotlib.patches import Circle
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
+label = 'temperature_05'
+
 # Load data for particles, energy, and temperature
 # Replace with your actual data
-data = pd.read_csv('../output_files/positions_data.txt', sep=' ', names=['particle', 'time', 'x', 'y', 'z'])
-energy_data = pd.read_csv('../output_files/energy_data.txt', sep=' ', names=['time', 'energy'])
-temperature_data = pd.read_csv('../output_files/temperature_data.txt', sep=' ', names=['time', 'temperature'])
+data = pd.read_csv(f'../output_files/{label}_positions_data.txt', sep=' ', names=['particle', 'time', 'x', 'y', 'z'])
+energy_data = pd.read_csv(f'../output_files/{label}_energy_data.txt', sep=' ', names=['time', 'energy'])
+temperature_data = pd.read_csv(f'../output_files/{label}_temperature_data.txt', sep=' ', names=['time', 'temperature'])
 
 # Determine unique particles
 unique_particles = data['particle'].unique()
@@ -88,7 +90,7 @@ def update(frame):
 ani = animation.FuncAnimation(fig, update, frames=data['time'].unique(), interval=50, blit=False)
 
 # Save the animation
-ani.save('../output_files/particle_motion_3D.mp4', writer='ffmpeg')
+ani.save(f'../output_files/{label}_particle_motion_3D.mp4', writer='ffmpeg')
 
 # Uncomment to display the plot in a Python script
 # plt.show()
