@@ -74,35 +74,41 @@ void ComputeAndWriteRDF(Particle *particles, double maxDistance, int numBins, co
 
 // Main function
 int main() {
-    Particle particles[N];
+    std::cout << "Simulation label : " + simulationLabel << endl;
+
+        Particle particles[N];
     Collider collider;
     Crandom randomGenerator(0);
     double time, drawTime, dx, dy, dz, radius, alpha, kineticEnergy, potentialEnergy, T_current;
     int i;
 
+
     // To save energies
-    std::ofstream outFile_energy("../output_files/energy_data.txt");
+    std::string energyFilename = "../output_files/" + simulationLabel + "_energy_data.txt";
+    std::ofstream outFile_energy(energyFilename);
     if (!outFile_energy) {
         cerr << "Error opening file for writing" << endl;
         return 1;
     }
 
     // To save energies
-    std::ofstream outFile_temperature("../output_files/temperature_data.txt");
+    std::string temperatureFilename = "../output_files/" + simulationLabel + "_temperature_data.txt";
+    std::ofstream outFile_temperature(temperatureFilename);
     if (!outFile_temperature) {
         cerr << "Error opening file for writing" << endl;
         return 1;
     }
 
     // To save positions
-    std::ofstream outFile_positions("../output_files/positions_data.txt");
+    std::string positionsFilename = "../output_files/" + simulationLabel + "_positions_data.txt";
+    std::ofstream outFile_positions(positionsFilename);
     if (!outFile_positions) {
         cerr << "Error opening file for writing" << endl;
         return 1; 
     }
 
     // To save RDF
-    std::string outFile_RDF = "../output_files/rdf_results.txt";
+    std::string outFile_RDF = "../output_files/" + simulationLabel + "rdf_results.txt";
 
     // Intit collider
     collider.Init();
@@ -134,6 +140,7 @@ int main() {
         //particles[i].Init(((i % Nx) + 1 + 3*randomGenerator.r()) * dx, ((i / Ny) + 1 + randomGenerator.r()) * dy , randomInitialVelocity * cos(alpha), randomInitialVelocity * sin(alpha), defaultMass, radius);
     }
 
+    /*
     // Steepest Descent Energy Minimization
     for (int step = 0; step < minimizationSteps; step++) {
         collider.CalculateForces(particles); 
@@ -142,6 +149,7 @@ int main() {
             particles[i].MinimizeEnergy(minimizationStepSize);
         }
     }
+    */ 
 
     cout << "Minimization step done" << endl;
 

@@ -1,6 +1,42 @@
 // Constants.h
+
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
+
+#ifndef T
+#define T 1
+#endif
+
+#ifndef NX
+#define NX 1
+#endif
+
+#ifndef NY
+#define NY 1
+#endif
+
+#ifndef NZ
+#define NZ 1
+#endif
+
+#ifndef LX
+#define LX 10
+#endif
+
+#ifndef LY
+#define LY 10
+#endif
+
+#ifndef LZ
+#define LZ 10
+#endif
+
+// Simulation label
+#include <string>
+const std::string simulationLabel = "T" + std::string(TOSTRING(T)) + "_NXYZ" + std::string(TOSTRING(NX)) + "_"  + std::string(TOSTRING(NY)) + "_" + std::string(TOSTRING(NZ));
 
 // Mod Verlet definitons
 //const double Chi = 0.193183325037836;
@@ -20,19 +56,19 @@ const double Lambda = -0.2123418310626054;
 const double Xi     = -0.06626458266981849;
 
 const double Gamma      = 1;
-const double T_desired  = 2;
+const double T_desired  = T;
 const double Q          = 1; 
 
 // Particles definitions
 const double defaultMass = 1;
 const double InitialVelocity = 0.000001;
-const double Lx = 10, Ly = 10, Lz = 10;
-const int Nx = 10, Ny = 10, Nz = 10, N = Nx * Ny * Nz;
+const double Lx = LX, Ly = LY, Lz = LZ;
+const int Nx = NX, Ny = NY, Nz = NZ, N = Nx * Ny * Nz;
 
 // Write definitions
 const double dt = 0.001;
-const int timeFrame = 2;
-const double totalTime = 1000;
+const int timeFrame = 5;
+const double totalTime = 2000;
 
 // Steepest Descent Energy Minimization
 const double minimizationStepSize = 0.0001;  

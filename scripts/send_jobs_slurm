@@ -1,0 +1,31 @@
+#!/bin/bash
+#-----------------------------------------------------------------
+# Example SLURM job script to run serial applications on MOGON.
+#
+# This script requests one core (out of 20) on one Broadwell-node.
+# The job will have access to all the memory in the node.  Note
+# that this job will be charged as if all 20 cores were requested.
+#-----------------------------------------------------------------
+
+#SBATCH -J LJ_test_T1        # Job name
+#SBATCH -o LJ_test_T1.out    # Specify stdout output file (%j expands to jobId)
+#SBATCH -p parallel         # Queue name
+#SBATCH -N 1                # Total number of nodes requested (20 cores/node on a standard Broadwell-node)
+#SBATCH -n 1                # Total number of tasks
+#SBATCH -c 40               # Total number of cores for the single task
+#SBATCH -t 08:00:00         # Run time (hh:mm:ss)
+
+#SBATCH -A m2_trr146        # Specify allocation to charge against
+
+# Load all necessary modules if needed (these are examples)
+# Loading modules in the script ensures a consistent environment.
+# module load gcc/9.3.0
+
+# Launch the executable with one task distributed on 20 cores:
+temperature_=1.0
+
+Nx=13
+Ny=13
+Nz=13
+
+srun ./run.sh $temperature_ $Nx $Ny $Nz

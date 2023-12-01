@@ -1,12 +1,17 @@
 #!/bin/bash
 
+temperature=$1
+
+Nx_=$2
+Ny_=$3
+Nz_=$4
+
 # Compile the source files
-g++ -c Particle.cpp
-g++ -fopenmp -c Collider.cpp
-g++ -fopenmp -c main.cpp
+g++ -DT=$temperature -DNX=$Nx_ -DNY=$Ny_ -DNZ=$Nz_ -c Particle.cpp
+g++ -DT=$temperature -DNX=$Nx_ -DNY=$Ny_ -DNZ=$Nz_ -fopenmp -c Collider.cpp
+g++ -DT=$temperature -DNX=$Nx_ -DNY=$Ny_ -DNZ=$Nz_ -fopenmp -c main.cpp
 
 # Link the object files and create the executable
-g++ -fopenmp Particle.o Collider.o main.o -o simul_exec
+g++ -DT=$temperature -DNX=$Nx_ -DNY=$Ny_ -DNZ=$Nz_ -fopenmp Particle.o Collider.o main.o -o simul_exec_$temperature
 
-# Run the simulation and pipe its output to gnuplot
-./simul_exec #| gnuplot
+./simul_exec_$temperature
