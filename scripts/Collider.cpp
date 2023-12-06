@@ -55,9 +55,13 @@ void Collider::Collide(Particle &particle1, Particle &particle2) {
         potentialEnergy += SpringConstant / 2.5 * pow(overlap, 2.5);
     }
     */
-   if (distance < cutoff) { 
+   if (distance <= cutoff) { 
         // Force at cutoff
-        double forceNormal = -24*epsilon*((pow(sigma, 6) / pow(distance, 7)) - 2*(pow(sigma, 12) / pow(distance, 13))); 
+        double forceCutoff = -24*epsilon*((pow(sigma, 6) / pow(cutoff, 7)) - 2*(pow(sigma, 12) / pow(cutoff, 13))); 
+        double potentialEnergyAtCuttoff = 4*epsilon*(pow((sigma/cutoff), 12) - pow((sigma/cutoff), 6));
+
+
+        double forceNormal = -24*epsilon*((pow(sigma, 6) / pow(distance, 7)) - 2*(pow(sigma, 12) / pow(distance, 13))) - forceCutoff; 
         double forceX = forceNormal * dx / distance;
         double forceY = forceNormal * dy / distance;
         double forceZ = forceNormal * dz / distance;
@@ -69,8 +73,8 @@ void Collider::Collide(Particle &particle1, Particle &particle2) {
         particle2.forceY -= forceY;
         particle2.forceZ -= forceZ;
 
-        double potentialEnergyAtCuttoff = 4*epsilon*(pow((sigma/cutoff), 12) - pow((sigma/cutoff), 6));
-        potentialEnergy += 4*epsilon*(pow((sigma/distance), 12) - pow((sigma/distance), 6)) - potentialEnergyAtCuttoff;
+        // Stoddard-Ford linear addition
+        potentialEnergy += 4*epsilon*(pow((sigma/distance), 12) - pow((sigma/distance), 6)) - potentialEnergyAtCuttoff - forceCutoff * (distance - cutoff);
     }
 }
 

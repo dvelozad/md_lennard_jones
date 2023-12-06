@@ -1,6 +1,7 @@
 import pandas as pd
+import numpy as np
 
-label = 'temperature_15'
+label = 'T0.78_N4_RHO0.8'
 
 # Replace 'your_data_file.csv' with the path to your data file
 data = pd.read_csv(f'../output_files/{label}_positions_data.txt', sep=' ', names=['particle', 'time', 'x', 'y', 'z'])
@@ -11,8 +12,8 @@ data = pd.read_csv(f'../output_files/{label}_positions_data.txt', sep=' ', names
 #min_time_step = data['time'].unique()[1] - data['time'].unique()[0]
 #data['time'] = (data['time']/min_time_step).astype(int)
 
-min_time_step = 5
-data['time'] = (data['time'].astype(int) / min_time_step).astype(int)
+min_time_step = 10
+data['time'] = (data['time'].round(1)/10).astype(int)
 
 # Define the atom type (assuming all particles are of the same type)
 atom_type = "C"  # You can change this to the appropriate atom type

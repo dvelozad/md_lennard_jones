@@ -1,6 +1,7 @@
 // main.cpp
 #include <iostream>
 #include <vector>
+#include <array>
 #include <cmath>
 #include <omp.h>
 #include <fstream>
@@ -76,7 +77,7 @@ void ComputeAndWriteRDF(Particle *particles, double maxDistance, int numBins, co
 int main() {
     std::cout << "Simulation label : " + simulationLabel << endl;
 
-        Particle particles[N];
+    Particle particles[N];
     Collider collider;
     Crandom randomGenerator(0);
     double time, drawTime, dx, dy, dz, radius, alpha, kineticEnergy, potentialEnergy, T_current;
@@ -113,7 +114,7 @@ int main() {
     // Intit collider
     collider.Init();
 
-    // Initialize particles
+    /*    // Initialize particles
     dx = Lx / (Nx + 1); dy = Ly / (Ny + 1); dz = Lz / (Nz + 1);
     radius = dx / 8;
     for (i = 0; i < N; i++) {
@@ -138,9 +139,64 @@ int main() {
             defaultMass, radius
         );
         //particles[i].Init(((i % Nx) + 1 + 3*randomGenerator.r()) * dx, ((i / Ny) + 1 + randomGenerator.r()) * dy , randomInitialVelocity * cos(alpha), randomInitialVelocity * sin(alpha), defaultMass, radius);
+    }*/
+
+    int unitCellsPerSide = std::cbrt(N / 4);
+    double a = Lx / unitCellsPerSide;
+
+    std::vector<std::array<double, 3>> velocities(N);
+    std::vector<std::array<double, 3>> positions(N); // Store initial positions
+
+    // Assign random velocities and positions
+    double totalVx = 0, totalVy = 0, totalVz = 0;
+    int particleIndex = 0;
+    for (int ix = 0; ix < unitCellsPerSide; ix++) {
+        for (int iy = 0; iy < unitCellsPerSide; iy++) {
+            for (int iz = 0; iz < unitCellsPerSide; iz++) {
+                std::vector<std::array<double, 3>> unitCellPositions = {
+                    {ix * a, iy * a, iz * a},
+                    {(ix + 0.5) * a, (iy + 0.5) * a, iz * a},
+                    {ix * a, (iy + 0.5) * a, (iz + 0.5) * a},
+                    {(ix + 0.5) * a, iy * a, (iz + 0.5) * a}
+                };
+
+                for (auto& pos : unitCellPositions) {
+                    if (particleIndex < N) {
+                        double theta = 2 * M_PI * randomGenerator.r();
+                        double phi = acos(2 * randomGenerator.r() - 1);
+                        double randomInitialVelocity = InitialVelocity * randomGenerator.r();
+
+                        double velocityX0 = randomInitialVelocity * sin(phi) * cos(theta);
+                        double velocityY0 = randomInitialVelocity * sin(phi) * sin(theta);
+                        double velocityZ0 = randomInitialVelocity * cos(phi);
+
+                        velocities[particleIndex] = {velocityX0, velocityY0, velocityZ0};
+                        positions[particleIndex] = pos;
+
+                        totalVx += velocityX0;
+                        totalVy += velocityY0;
+                        totalVz += velocityZ0;
+
+                        particleIndex++;
+                    }
+                }
+            }
+        }
     }
 
-    /*
+    // Adjust velocities to ensure zero average
+    double avgVx = totalVx / N;
+    double avgVy = totalVy / N;
+    double avgVz = totalVz / N;
+
+    for (int i = 0; i < N; i++) {
+        particles[i].Init(
+            positions[i][0], positions[i][1], positions[i][2],
+            velocities[i][0] - avgVx, velocities[i][1] - avgVy, velocities[i][2] - avgVz,
+            defaultMass, radius);
+    }
+
+
     // Steepest Descent Energy Minimization
     for (int step = 0; step < minimizationSteps; step++) {
         collider.CalculateForces(particles); 
@@ -149,7 +205,6 @@ int main() {
             particles[i].MinimizeEnergy(minimizationStepSize);
         }
     }
-    */ 
 
     cout << "Minimization step done" << endl;
 
