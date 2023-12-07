@@ -7,7 +7,7 @@ import matplotlib.animation as animation
 from matplotlib.patches import Circle
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-label = 'T0.78_N4_RHO0.8'
+label = 'T0.5_N4_RHO0.8'
 
 # Load data for particles, energy, and temperature
 # Replace with your actual data

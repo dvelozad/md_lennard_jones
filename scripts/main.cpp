@@ -76,6 +76,8 @@ void ComputeAndWriteRDF(Particle *particles, double maxDistance, int numBins, co
 // Main function
 int main() {
     std::cout << "Simulation label : " + simulationLabel << endl;
+    std::cout << "Box dimension L : " << L << endl;
+    std::cout << "Number of particles : " << N << endl;
 
     Particle particles[N];
     Collider collider;
@@ -83,6 +85,11 @@ int main() {
     double time, drawTime, dx, dy, dz, radius, alpha, kineticEnergy, potentialEnergy, T_current;
     int i;
 
+
+    if (L / 2 < cutoff) {
+        cerr << "Error : The cutoff distance is greater than half the box dimension L / 2 :" << L / 2 << " - Rc : " << cutoff << endl;
+        return 1;
+    }
 
     // To save energies
     std::string energyFilename = "../output_files/" + simulationLabel + "_energy_data.txt";
@@ -164,7 +171,7 @@ int main() {
                     if (particleIndex < N) {
                         double theta = 2 * M_PI * randomGenerator.r();
                         double phi = acos(2 * randomGenerator.r() - 1);
-                        double randomInitialVelocity = InitialVelocity * randomGenerator.r();
+                        double randomInitialVelocity = randomGenerator.r() * InitialVelocity;
 
                         double velocityX0 = randomInitialVelocity * sin(phi) * cos(theta);
                         double velocityY0 = randomInitialVelocity * sin(phi) * sin(theta);
@@ -207,7 +214,7 @@ int main() {
     }
 
     cout << "Minimization step done" << endl;
-
+    collider.CalculateForces(particles);
     for (time = drawTime = 0; time < totalTime; time += dt, drawTime += dt) {
 
         // Write info
@@ -229,6 +236,26 @@ int main() {
             outFile_energy << time << " " << kineticEnergy + potentialEnergy << endl;
             outFile_temperature << time << " " << T_current << endl;
         }       
+
+
+        double maxDisplacement = 0.0;
+        bool shouldUpdate = false;
+
+        for (i = 0; i < N; i++) {
+            double displacement = particles[i].CalculateDisplacement();
+            maxDisplacement = std::max(maxDisplacement, displacement);
+
+            if (maxDisplacement > (buffer)) {
+                shouldUpdate = true;
+                break;
+            }
+        }
+
+        if (shouldUpdate) {
+            for (i = 0; i < N; i++) {
+                particles[i].UpdateNeighborList(particles);
+            }
+        }
 
         // Histogram data
         // if (time > 2)
@@ -253,7 +280,21 @@ int main() {
         }
         */
 
-        //Omelyan PEFRL
+        for (i = 0; i < N; i++) {
+            particles[i].Move_r1(dt, 1);
+        }
+
+        collider.CalculateForces(particles);
+        for (i = 0; i < N; i++) {
+            particles[i].Move_V(dt, 0.5);
+            //particles[i].Move_r1(dt, 0.5);
+
+            // Update velocities with Langevin thermostat
+            particles[i].UpdateVelocity(dt, Gamma, T_desired);
+            
+        }
+
+        /*        //Omelyan PEFRL
         for(i = 0; i < N; i++) particles[i].Move_r1(dt, Zeta);
         collider.CalculateForces(particles);; for(i = 0; i < N; i++) particles[i].Move_V(dt, (1-2*Lambda)/2);
         for(i = 0; i < N; i++) particles[i].Move_r1(dt, Xi);
@@ -262,12 +303,8 @@ int main() {
         collider.CalculateForces(particles);; for(i = 0; i < N; i++) particles[i].Move_V(dt, Lambda);
         for(i = 0; i < N; i++) particles[i].Move_r1(dt, Xi);
         collider.CalculateForces(particles);; for(i = 0; i < N; i++) particles[i].Move_V(dt,( 1-2*Lambda)/2);
-        for(i = 0; i < N; i++) particles[i].Move_r1(dt, Zeta);
-    
-        // Update velocities with Langevin thermostat
-        for (int i = 0; i < N; i++) {
-            particles[i].UpdateVelocity(dt, Gamma, T_desired);
-        }
+        for(i = 0; i < N; i++) particles[i].Move_r1(dt, Zeta);*/
+
 
         // After calculating the current temperature of the system
         //double T_current = CalculateCurrentTemperature(particles, N);

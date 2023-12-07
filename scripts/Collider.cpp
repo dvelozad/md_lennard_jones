@@ -18,15 +18,34 @@ void Collider::CalculateForces(Particle *particles) {
 
     #pragma omp parallel for
     for (int i = 0; i < N; i++) { //N + 4
+        particles[i].forceOX = particles[i].forceX; particles[i].forceOY = particles[i].forceY; particles[i].forceOZ = particles[i].forceZ;
         particles[i].forceX = 0; particles[i].forceY = 0; particles[i].forceZ = 0;
     }
 
+    /*    
     #pragma omp parallel for 
     for (int i = 0; i < N; i++) {
         for (int j = i + 1; j < N; j++) { //N + 4
             Collide(particles[i], particles[j]);
         }
+    }*/
+
+    // Update neighbor lists if necessary
+    #pragma omp parallel for
+    for (int i = 0; i < N; i++) {
+        particles[i].UpdateNeighborList(particles);
     }
+
+    // Calculate forces
+    #pragma omp parallel for
+    for (int i = 0; i < N; i++) {
+        for (int j : particles[i].neighborList) {
+            if (i != j) { 
+                Collide(particles[i], particles[j]);
+            }
+        }
+    }
+
 }
 
 void Collider::Collide(Particle &particle1, Particle &particle2) {

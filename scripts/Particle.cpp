@@ -5,7 +5,6 @@
 #include <random>
 #include <iostream>
 
-
 // Random number generation
 std::random_device rd;
 std::mt19937 gen(rd());
@@ -40,17 +39,20 @@ void Particle::Init(double x0, double y0, double z0, double velocityX0, double v
 }
 
 void Particle::Move_r1(double dt, double constant) {
-    x += velocityX * constant * dt;  
-    y += velocityY * constant * dt;
-    z += velocityZ * constant * dt;
+    x += velocityX * constant * dt + (forceX / mass) * dt * dt / (2);  
+    y += velocityY * constant * dt + (forceY / mass) * dt * dt / (2);  
+    z += velocityZ * constant * dt + (forceZ / mass) * dt * dt / (2);  
+    //x += velocityX * constant * dt + (forceX / mass) * dt * dt / (2);  
+    //y += velocityY * constant * dt + (forceY / mass) * dt * dt / (2);  
+    //z += velocityZ * constant * dt + (forceZ / mass) * dt * dt / (2);  
     //x += velocityX * Chi * dt;  y += velocityY * Chi * dt;
     ApplyPeriodicBoundaryConditions(Lx, Ly, Lz);
 }
 
 void Particle::Move_V(double dt, double constant) {
-    velocityX += (forceX / mass - xi * velocityX) * constant * dt;  
-    velocityY += (forceY / mass - xi * velocityY) * constant * dt;
-    velocityZ += (forceZ / mass - xi * velocityZ) * constant * dt;
+    velocityX += ((forceOX + forceX) / mass) * constant * dt;  
+    velocityY += ((forceOY + forceY) / mass) * constant * dt;
+    velocityZ += ((forceOZ + forceZ) / mass) * constant * dt;
     //velocityX += (forceX / mass) * constant * dt;  velocityY += (forceY / mass) * constant * dt;
     //velocityX += (forceX / mass) * (1/2) * dt;  velocityY += (forceY / mass) * (1/2) * dt;
 }
@@ -111,10 +113,6 @@ void Particle::RescaleVelocity(double lambda) {
     velocityZ *= lambda;
 }
 
-void Particle::UpdateThermostat(double kineticEnergy){
-    xidot += (kineticEnergy - (3/2) * N * kB * T_desired) * dt / Q;
-    xi += xidot * dt;
-}
 
 void Particle::UpdateVelocity(double dt, double gamma, double temperature) {
 
@@ -142,4 +140,25 @@ double Particle::DistanceTo(Particle &other){
     double distance = sqrt(dx * dx + dy * dy + dz * dz);
 
     return distance;
+}
+
+void Particle::UpdateNeighborList(Particle *particles) {
+    double effectiveCutoff = cutoff + buffer;
+    neighborList.clear();
+
+    for (int i = 0; i < N; i++) {
+        double distance = DistanceTo(particles[i]);
+        if (distance < effectiveCutoff) {
+            neighborList.push_back(i);
+        }
+    }
+}
+
+double Particle::CalculateDisplacement() {
+    double dx = x - lastX;
+    double dy = y - lastY;
+    double dz = z - lastZ;
+    lastX = x; lastY = y; lastZ = z; // Reset last positions
+
+    return sqrt(dx * dx + dy * dy + dz * dz);
 }

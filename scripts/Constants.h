@@ -10,18 +10,6 @@
 #define T 1
 #endif
 
-/*#ifndef NX
-#define NX 1
-#endif
-
-#ifndef NY
-#define NY 1
-#endif
-
-#ifndef NZ
-#define NZ 1
-#endif*/
-
 #ifndef N_
 #define N_ 1
 #endif
@@ -46,19 +34,20 @@ const double kB         = 1; //1.380649e-23;
 const double epsilon    = 1;
 const double sigma      = 1;
 const double cutoff     = 2.5;
+const double buffer     = 0.7;
 
 // For Omelyan PEFRL
 const double Zeta   = 0.1786178958448091;
 const double Lambda = -0.2123418310626054;
 const double Xi     = -0.06626458266981849;
 
-const double Gamma      = 0.5;
+const double Gamma      = 0.05;
 const double T_desired  = T;
 const double Q          = 1; 
 
 // Particles definitions
 const double defaultMass = 1;
-const double InitialVelocity = pow(12, 0.5);
+const double InitialVelocity = 1.9;
 //const int Nx = NX, Ny = NY, Nz = NZ, N = Nx * Ny * Nz;
 const int N = 4*N_*N_*N_;
 const double L = pow(defaultMass*N / RHO_, 1. / 3.);
@@ -66,7 +55,7 @@ const double Lx = L, Ly = L, Lz = L;
 
 // Write definitions
 const double dt = 0.001;
-const int timeFrame = 10;
+const int timeFrame = 3;
 const double totalTime = 1000;
 
 // Steepest Descent Energy Minimization
