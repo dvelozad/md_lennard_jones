@@ -24,6 +24,6 @@ g++ -DT=$temperature -DN_=$N_ -DRHO_=$RHO_ -fopenmp -c Collider.cpp
 g++ -DT=$temperature -DN_=$N_ -DRHO_=$RHO_ -fopenmp -c main.cpp
 
 # Link the object files and create the executable
-g++ -DT=$temperature -DN_=$N_ -DRHO_=$RHO_ -fopenmp Particle.o Collider.o main.o -o simul_exec_$temperature
+g++ -DT=$temperature -DN_=$N_ -DRHO_=$RHO_ -fopenmp Particle.o Collider.o main.o -o simul_exec-$temperature-$N_-$RHO_
 
-./simul_exec_$temperature
+./simul_exec-$temperature-$N_-$RHO_

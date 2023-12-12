@@ -203,7 +203,6 @@ int main() {
             defaultMass, radius);
     }
 
-
     // Steepest Descent Energy Minimization
     for (int step = 0; step < minimizationSteps; step++) {
         collider.CalculateForces(particles); 
@@ -233,9 +232,9 @@ int main() {
             T_current = CalculateCurrentTemperature(particles, N);
 
             // Write
-            outFile_energy << time << " " << kineticEnergy + potentialEnergy << endl;
+            outFile_energy << time << " " << kineticEnergy << " " << potentialEnergy << endl;
             outFile_temperature << time << " " << T_current << endl;
-        }       
+        }  
 
 
         double maxDisplacement = 0.0;
@@ -245,7 +244,7 @@ int main() {
             double displacement = particles[i].CalculateDisplacement();
             maxDisplacement = std::max(maxDisplacement, displacement);
 
-            if (maxDisplacement > (buffer)) {
+            if (maxDisplacement > (buffer * 0.5)) {
                 shouldUpdate = true;
                 break;
             }
@@ -280,18 +279,22 @@ int main() {
         }
         */
 
+        // Initial half-step velocity update
         for (i = 0; i < N; i++) {
-            particles[i].Move_r1(dt, 1);
+            particles[i].Move_V(dt, 0.5); // Half step for velocity
         }
 
-        collider.CalculateForces(particles);
+        // Full step for position
         for (i = 0; i < N; i++) {
-            particles[i].Move_V(dt, 0.5);
-            //particles[i].Move_r1(dt, 0.5);
+            particles[i].Move_r1(dt, 1); // Full step for position
+        }
 
-            // Update velocities with Langevin thermostat
-            particles[i].UpdateVelocity(dt, Gamma, T_desired);
-            
+        collider.CalculateForces(particles); // Calculate forces based on new positions
+
+        // Final half-step velocity update
+        for (i = 0; i < N; i++) {
+            particles[i].Move_V(dt, 0.5); // Second half step for velocity
+            particles[i].UpdateVelocity(dt, Gamma, T_desired); // Update with thermostat
         }
 
         /*        //Omelyan PEFRL
@@ -328,6 +331,7 @@ int main() {
         for (int i = 0; i < N; i++) {
             particles[i].UpdateThermostat(kineticEnergy);
         }*/
+    
     }
 
     // Write RDF

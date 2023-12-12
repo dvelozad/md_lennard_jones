@@ -39,9 +39,9 @@ void Particle::Init(double x0, double y0, double z0, double velocityX0, double v
 }
 
 void Particle::Move_r1(double dt, double constant) {
-    x += velocityX * constant * dt + (forceX / mass) * dt * dt / (2);  
-    y += velocityY * constant * dt + (forceY / mass) * dt * dt / (2);  
-    z += velocityZ * constant * dt + (forceZ / mass) * dt * dt / (2);  
+    x += velocityX * constant * dt;
+    y += velocityY * constant * dt; 
+    z += velocityZ * constant * dt;
     //x += velocityX * constant * dt + (forceX / mass) * dt * dt / (2);  
     //y += velocityY * constant * dt + (forceY / mass) * dt * dt / (2);  
     //z += velocityZ * constant * dt + (forceZ / mass) * dt * dt / (2);  
@@ -50,9 +50,9 @@ void Particle::Move_r1(double dt, double constant) {
 }
 
 void Particle::Move_V(double dt, double constant) {
-    velocityX += ((forceOX + forceX) / mass) * constant * dt;  
-    velocityY += ((forceOY + forceY) / mass) * constant * dt;
-    velocityZ += ((forceOZ + forceZ) / mass) * constant * dt;
+    velocityX += ((forceX) / mass) * constant * dt;  
+    velocityY += ((forceY) / mass) * constant * dt;
+    velocityZ += ((forceZ) / mass) * constant * dt;
     //velocityX += (forceX / mass) * constant * dt;  velocityY += (forceY / mass) * constant * dt;
     //velocityX += (forceX / mass) * (1/2) * dt;  velocityY += (forceY / mass) * (1/2) * dt;
 }

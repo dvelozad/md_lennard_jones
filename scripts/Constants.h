@@ -30,33 +30,36 @@ const std::string simulationLabel = "T" + std::string(TOSTRING(T)) + "_N" + std:
 //const double SpringConstant = 50;
 
 // Lennard-Jones
-const double kB         = 1; //1.380649e-23;
+const double kB         = 1;
 const double epsilon    = 1;
 const double sigma      = 1;
 const double cutoff     = 2.5;
-const double buffer     = 0.7;
+const double buffer     = 2;
 
 // For Omelyan PEFRL
 const double Zeta   = 0.1786178958448091;
 const double Lambda = -0.2123418310626054;
 const double Xi     = -0.06626458266981849;
 
-const double Gamma      = 0.05;
+const double Gamma      = 0.005;
 const double T_desired  = T;
-const double Q          = 1; 
+//const double Q          = 1; 
 
 // Particles definitions
 const double defaultMass = 1;
-const double InitialVelocity = 1.9;
+const double InitialVelocity = 15;
 //const int Nx = NX, Ny = NY, Nz = NZ, N = Nx * Ny * Nz;
 const int N = 4*N_*N_*N_;
-const double L = pow(defaultMass*N / RHO_, 1. / 3.);
+
+
+const double RHO = RHO_;
+const double L = pow(defaultMass*N / RHO, 1. / 3.);
 const double Lx = L, Ly = L, Lz = L;
 
 // Write definitions
 const double dt = 0.001;
-const int timeFrame = 3;
-const double totalTime = 1000;
+const int timeFrame = 1;
+const double totalTime = 2000;
 
 // Steepest Descent Energy Minimization
 const double minimizationStepSize = 0.0000001;  

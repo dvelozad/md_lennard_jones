@@ -7,12 +7,11 @@ import matplotlib.animation as animation
 from matplotlib.patches import Circle
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
-label = 'T0.5_N4_RHO0.8'
+label = 'T0.71_N4_RHO0.844'
 
 # Load data for particles, energy, and temperature
-# Replace with your actual data
 data = pd.read_csv(f'../output_files/{label}_positions_data.txt', sep=' ', names=['particle', 'time', 'x', 'y', 'z'])
-energy_data = pd.read_csv(f'../output_files/{label}_energy_data.txt', sep=' ', names=['time', 'energy'])
+energy_data = pd.read_csv(f'../output_files/{label}_energy_data.txt', sep=' ', names=['time', 'V'])
 temperature_data = pd.read_csv(f'../output_files/{label}_temperature_data.txt', sep=' ', names=['time', 'temperature'])
 
 # Determine unique particles
@@ -24,7 +23,7 @@ color_dict = {particle: np.random.choice(['red', 'green', 'blue', 'purple']) for
 
 # Map these properties back to the DataFrame
 #data['radius'] = data['particle'].map(radius_dict)
-data['radius'] = 0.1
+data['radius'] = 0.15
 data['color'] = data['particle'].map(color_dict)
 
 # Function to draw a sphere

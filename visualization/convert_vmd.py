@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-label = 'T0.5_N4_RHO0.4'
+label = 'T1.2_N5_RHO0.5'
 
 # Replace 'your_data_file.csv' with the path to your data file
 data = pd.read_csv(f'../output_files/{label}_positions_data.txt', sep=' ', names=['particle', 'time', 'x', 'y', 'z'])
